@@ -1,0 +1,50 @@
+{
+  "name": "@samatech/vue3-eth",
+  "version": "0.1.0",
+  "description": "Vue3 library for building Dapps in an ES module environment",
+  "main": "dist/vue3-eth.umd",
+  "module": "dist/vue3-eth.mjs",
+  "types": "dist/vue3-eth.d.ts",
+  "files": [
+    "dist",
+    "lib"
+  ],
+  "scripts": {
+    "build": "rimraf dist && rollup -c rollup.config.js",
+    "example:dev": "npm -C example run dev",
+    "example:build": "npm -C example run build",
+    "build:all": "npm run build && npm run plugin:build",
+    "build:test": "npm run build && jest",
+    "test": "jest",
+    "release": "npx git-ensure -a && npx bumpp --commit --tag --push"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samatech/vue3-eth.git"
+  },
+  "keywords": [
+    "fetch",
+    "api"
+  ],
+  "author": "Sam Pullman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sampullman/vue3-eth/issues"
+  },
+  "homepage": "https://github.com/sampullman/vue3-eth#readme",
+  "dependencies": {
+    "@metamask/detect-provider": "^1.2.0",
+    "ethers": "5.3.1",
+    "vue": "3.1.2",
+    "big.js": "^6.1.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "jest": "^27.0.5",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.52.2",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "rollup-plugin-terser": "^7.0.2"
+  }
+}
