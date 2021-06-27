@@ -16,7 +16,7 @@ This library relies on the Vue3 composition API. Ethereum activity is handled by
 
 Currently, only Metamask is supported as a wallet provider, but work is in progress to integrate WalletConnect and others.
 
-## Instructions
+## Usage
 
 ### Install
 
@@ -36,10 +36,7 @@ import { useChain } from '@samatech/vue3-eth';
 const chain = useChain({ ethChainId: 'ropsten' });
 ```
 
-### Usage
-
-
-#### Callbacks
+### Callbacks
 Callbacks are included in the object returned by `useChain`.
 
 **onSetupProvider**
@@ -89,7 +86,7 @@ onAccountsChanged((accounts) => {
 });
 ```
 
-#### Reactive variables
+### Reactive variables
 
 **loadingAccount** - Boolean indicating whether a connection is in progress. (Default `false`)
 
@@ -106,7 +103,7 @@ Error descriptions:
 
 **walletConnected** - Boolean, true if currently connected (after `onConnect`, before `onDisconnect`)
 
-#### Methods
+### Methods
 
 **connectWallet(walletName: string)**
 - Connect to the blockchain. `walletName` is the type of wallet, which can be `'metamask'` or `'walletconnect'`
