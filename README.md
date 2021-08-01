@@ -4,7 +4,7 @@
 
 <p align='center'>
 <a href='https://www.npmjs.com/package/@samatech/vue3-eth'>
-  <img src='https://img.shields.io/npm/v/@vue3-eth/vue3-eth?color=222&style=flat-square'>
+  <img src='https://img.shields.io/npm/v/@samatech/vue3-eth?color=222&style=flat-square'>
 </a>
 </p>
 
@@ -45,7 +45,7 @@ const { onSetupProvider } = useChain();
 
 onSetupProvider((signer) => {
   // The eth provider is connected. Store the signer if you need it later
-  // Make sure "signer" is NOT reactive, this will break ethers.sj
+  // Make sure "signer" is NOT reactive, this will break ethers.js
 });
 ```
 
@@ -94,6 +94,7 @@ onAccountsChanged((accounts) => {
 
 Error descriptions:
 - `errors.no_metamask` - Metamask is not available in the current browser context
+- `errors.not_connected` - A blockchain access function was called before a provider was connected
 - `errors.user_rejected` - The user rejected the transaction
 - `errors.nonce_high` - The Metamask account nonce doesn't match the expected value. This happens when a local testnet is reset after use, the solution is to go to Metamask options -> Advanced -> Reset Account
 - `errors.tx_reverted` - The transaction failed for some reason
