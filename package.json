@@ -34,16 +34,16 @@
   "homepage": "https://github.com/sampullman/vue3-eth#readme",
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
-    "ethers": "5.3.1",
-    "vue": "3.1.2",
+    "ethers": "5.4.5",
+    "vue": "3.2.4",
     "big.js": "^6.1.1"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^19.0.0",
-    "@rollup/plugin-node-resolve": "^13.0.0",
-    "jest": "^27.0.5",
+    "@rollup/plugin-commonjs": "^20.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.4",
+    "jest": "^27.0.6",
     "rimraf": "^3.0.2",
-    "rollup": "^2.52.2",
+    "rollup": "^2.56.3",
     "rollup-plugin-sourcemaps": "^0.6.3",
     "rollup-plugin-terser": "^7.0.2"
   }
