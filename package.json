@@ -1,6 +1,6 @@
 {
   "name": "@samatech/vue3-eth",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Vue3 library for building Dapps in an ES module environment",
   "main": "dist/vue3-eth.umd",
   "module": "dist/vue3-eth.mjs",
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/samatech/vue3-eth.git"
+    "url": "git+https://github.com/samatechtw/vue3-eth.git"
   },
   "keywords": [
     "fetch",
@@ -29,9 +29,9 @@
   "author": "Sam Pullman",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sampullman/vue3-eth/issues"
+    "url": "https://github.com/samatechtw/vue3-eth/issues"
   },
-  "homepage": "https://github.com/sampullman/vue3-eth#readme",
+  "homepage": "https://github.com/samatechtw/vue3-eth#readme",
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
     "ethers": "5.4.5",
