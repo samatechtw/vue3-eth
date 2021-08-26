@@ -32,10 +32,12 @@
     "url": "https://github.com/samatechtw/vue3-eth/issues"
   },
   "homepage": "https://github.com/samatechtw/vue3-eth#readme",
+  "peerDependencies": {
+    "vue": "^3.2.6"
+  },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
     "ethers": "5.4.5",
-    "vue": "3.2.4",
     "big.js": "^6.1.1"
   },
   "devDependencies": {
