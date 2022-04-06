@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "types": ["jest", "node"],
+    "declaration": true,
+    "composite": true
+  },
+  "include": ["**/*.spec.ts", "**/*.d.ts", "**/lib/**/*.ts"]
+}

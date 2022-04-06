@@ -1,13 +1,12 @@
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import sourceMaps from 'rollup-plugin-sourcemaps';
-import { terser } from 'rollup-plugin-terser';
+import resolve from '@rollup/plugin-node-resolve'
+import commonjs from '@rollup/plugin-commonjs'
+import { terser } from 'rollup-plugin-terser'
 
-const pkg = require('./package.json');
+const pkg = require('./package.json')
 
 export default [
   {
-    input: 'lib/index.js',
+    input: 'dist/index.js',
     output: [
       {
         exports: 'named',
@@ -24,10 +23,6 @@ export default [
       },
     ],
     external: [...Object.keys(pkg.devDependencies), 'vue'],
-    plugins: [
-      commonjs(),
-      resolve(),
-      sourceMaps(),
-    ],
+    plugins: [commonjs(), resolve()],
   },
-];
+]
