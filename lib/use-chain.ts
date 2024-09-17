@@ -1,14 +1,42 @@
-import { providers, Signer } from 'ethers/lib.esm'
-import Big from 'big.js'
-import { ref } from 'vue'
-import { useMetamask } from './use-metamask'
-import { useWalletconnect } from './use-walletconnect'
-import { ChainState, IProviderConfig, Provider, Web3Provider } from './provider-config'
+import { Signer, TransactionResponse, TransactionReceipt, BrowserProvider } from 'ethers'
+import { Ref, ref } from 'vue'
+import {
+  useMetamask,
+  useWalletconnect,
+  ChainState,
+  IProviderConfig,
+  Provider,
+} from './providers'
 
-Big.PE = 1000
+export interface IUseChain {
+  // Callbacks
+  onChainChanged: (callback: ChainChangedCallback) => void
+  onAccountsChanged: (callback: AccountsChangedCallback) => void
+  onSetupProvider: (callback: SetupProviderCallback) => void
+  onConnect: (callback: ConnectCallback) => void
+  onDisconnect: (callback: DisconnectCallback) => void
+  // Reactive variables
+  loadingAccount: Ref<boolean>
+  connectError: Ref<string | undefined>
+  wrongNetwork: Ref<boolean>
+  walletConnected: Ref<boolean>
+  wallets: Ref<string[]>
+  // Methods
+  connectWallet: (walletName: string) => Promise<void>
+  reconnectWallet: (walletName: string) => Promise<void>
+  disconnectWallet: () => Promise<void>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  request: (method: string, params: any[]) => any | undefined
+  getTx: (hash: string) => Promise<TransactionResponse | null>
+  getTxReceipt: (hash: string) => Promise<TransactionReceipt | null>
+  getSigner: () => Signer | undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getError: (e: unknown) => any
+  getBalance: (address: string) => Promise<bigint | undefined>
+}
 
-function chainInit(provider: Provider): Web3Provider {
-  return new providers.Web3Provider(provider)
+function chainInit(provider: Provider): BrowserProvider {
+  return new BrowserProvider(provider)
 }
 
 // TODO non-reactive due to issue with proxying ethers objects
@@ -21,6 +49,7 @@ const state: ChainState = {
 const chainId = ref()
 const loadingAccount = ref(false)
 const walletConnected = ref(false)
+const wallets = ref<string[]>([])
 const wrongNetwork = ref(false)
 const walletSource = ref()
 const connectError = ref()
@@ -73,20 +102,22 @@ export const useChain = (config?: IProviderConfig) => {
     } else if (walletName === 'walletconnect') {
       walletSource.value = useWalletconnect(config)
     }
-    return walletSource.value.getProvider()
   }
 
   const setupProvider = async (walletProvider: Provider) => {
     wrongNetwork.value = false
-    state.provider = chainInit(walletProvider)
-    state.signer = state.provider.getSigner()
-    if (setupProviderCallback.value) {
-      setupProviderCallback.value(state.signer)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    state.provider = chainInit(walletProvider) as any
+    if (!state.provider) {
+      return
     }
-    await subscribeProvider(state.provider)
+    state.signer = await state.provider.getSigner()
+    setupProviderCallback.value?.(state.signer)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await subscribeProvider(walletProvider as any)
 
     const network = await state.provider.getNetwork()
-    chainId.value = network.chainId
+    chainId.value = network?.chainId
     if (ethChainId && chainId.value.toString() !== ethChainId) {
       wrongNetwork.value = true
       return false
@@ -97,8 +128,13 @@ export const useChain = (config?: IProviderConfig) => {
   const reconnectWallet = async (walletName: string) => {
     loadingAccount.value = true
     try {
-      const walletProvider = await setupWallet(walletName)
-      if (await setupProvider(walletProvider)) {
+      setupWallet(walletName)
+      if (!walletSource.value?.isConnected()) {
+        return false
+      }
+      const provider = await walletSource.value.getProvider()
+      if (await setupProvider(provider)) {
+        wallets.value = await walletSource.value.getAccounts(provider)
         if (connectCallback.value) {
           const address = await state.signer?.getAddress()
           await connectCallback.value(address, true)
@@ -116,9 +152,10 @@ export const useChain = (config?: IProviderConfig) => {
   const connectWallet = async (walletName: string) => {
     loadingAccount.value = true
     try {
-      const walletProvider = await setupWallet(walletName)
-      await walletSource.value.connectWallet(walletProvider)
-      if (await setupProvider(walletProvider)) {
+      setupWallet(walletName)
+      const provider = await walletSource.value.getProvider()
+      await walletSource.value.connectWallet(provider)
+      if (await setupProvider(provider)) {
         if (connectCallback.value) {
           const address = await state.signer?.getAddress()
           await connectCallback.value(address, false)
@@ -137,9 +174,7 @@ export const useChain = (config?: IProviderConfig) => {
     state.provider = undefined
     walletConnected.value = false
     wrongNetwork.value = false
-    if (disconnectCallback.value) {
-      disconnectCallback.value()
-    }
+    disconnectCallback.value?.()
   }
 
   const disconnectWallet = async () => {
@@ -149,9 +184,9 @@ export const useChain = (config?: IProviderConfig) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const request = (method: string, params: any[]): any | undefined => {
     verifyProvider()
-    const requestFn = state.provider?.provider.request
+    const requestFn = state.provider?.provider.send
     if (requestFn) {
-      return requestFn({ method, params })
+      return requestFn(method, params)
     }
     return undefined
   }
@@ -167,41 +202,34 @@ export const useChain = (config?: IProviderConfig) => {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getError = (exception: any) => walletSource.value.getError(exception)
+  const getError = (exception: unknown) => walletSource.value.getError(exception)
 
-  const getBalance = (address: string) => {
+  const getBalance = (address: string): Promise<bigint> | undefined => {
     verifyProvider()
     return state.provider?.getBalance(address)
   }
 
-  const toEth = (val: number | Big | string) => {
-    const wei = Big(val.toString())
-    return wei.div(Big('1000000000000000000')).toNumber()
-  }
-  const toEthDisplay = (val: number | Big | string) => toEth(val).toLocaleString()
-  const toWei = (val: number | Big | string) => {
-    const eth = Big(val.toString())
-    return eth.times(Big('1000000000000000000')).toString()
-  }
-
   const getSigner = () => state.signer
 
-  const subscribeProvider = async (provider: Web3Provider) => {
+  const subscribeProvider = async (provider: BrowserProvider) => {
     if (!provider.on) {
       console.log('Provider has no "on" method')
       return
     }
-    provider.on('close', () => disconnect())
-    provider.on('accountsChanged', async (accounts) => {
-      if (accountsChangedCallback.value) {
-        await accountsChangedCallback.value(accounts)
+    provider.on('accountsChanged', async (accounts: string[]) => {
+      wallets.value = [...accounts]
+      if (accounts?.length === 0) {
+        disconnect()
+      } else {
+        await accountsChangedCallback.value?.(accounts)
       }
     })
     provider.on('chainChanged', async (chainId) => {
       chainId.value = chainId
-      if (chainChangedCallback.value) {
-        await chainChangedCallback.value(chainId)
-      }
+      await chainChangedCallback.value?.(chainId)
+    })
+    provider.on('disconnect', async () => {
+      disconnect()
     })
   }
 
@@ -217,6 +245,7 @@ export const useChain = (config?: IProviderConfig) => {
     connectError,
     wrongNetwork,
     walletConnected,
+    wallets,
     // Methods
     connectWallet,
     reconnectWallet,
@@ -227,8 +256,5 @@ export const useChain = (config?: IProviderConfig) => {
     getSigner,
     getError,
     getBalance,
-    toEth,
-    toEthDisplay,
-    toWei,
   }
 }

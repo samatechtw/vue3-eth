@@ -1,8 +1,9 @@
 import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
-import { terser } from 'rollup-plugin-terser'
+import terser from '@rollup/plugin-terser'
+import nodePolyfills from 'rollup-plugin-polyfill-node'
 
-const pkg = require('./package.json')
+import pkg from './package.json' assert { type: 'json' }
 
 export default [
   {
@@ -19,7 +20,7 @@ export default [
         exports: 'named',
         file: pkg.module,
         sourcemap: true,
-        plugins: [terser()],
+        plugins: [terser(), nodePolyfills({ include: ['zlib'] })],
       },
     ],
     external: [...Object.keys(pkg.devDependencies), 'vue'],

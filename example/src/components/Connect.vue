@@ -10,32 +10,59 @@
     </div>
     <div v-else>
       <div>You are connected!</div>
-      <div></div>
+      <div v-for="wallet in wallets" :key="wallet">
+        {{ addressDisplay(wallet) }}
+      </div>
       <button @click="disconnect">Disconnect</button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useChain } from '@samatech/vue3-eth'
+import { toEthDisplay, useChain } from '@samatech/vue3-eth'
+import { onMounted, ref, watch } from 'vue'
 
 const {
   walletConnected,
+  wallets,
   loadingAccount,
   wrongNetwork,
   connectError,
+  getBalance,
   connectWallet,
+  reconnectWallet,
   disconnectWallet,
 } = useChain()
 
+const balances = ref<Record<string, string>>({})
+
+const addressDisplay = (addr: string | undefined) => {
+  if (addr) {
+    const bal = toEthDisplay(balances.value[addr] ?? '')
+    return `${addr.slice(0, 6)}...${addr.slice(addr.length - 4, addr.length)} -> ${bal}`
+  }
+  return ''
+}
+
+watch(walletConnected, async (connected) => {
+  if (connected) {
+    for (const account of wallets.value) {
+      balances.value[account] = (await getBalance(account))?.toString() ?? ''
+    }
+  }
+})
+
 const connect = () => {
-  console.log('OK')
   connectWallet('metamask')
 }
 
 const disconnect = () => {
   disconnectWallet()
 }
+
+onMounted(() => {
+  reconnectWallet('metamask')
+})
 </script>
 
 <style lang="postcss" scoped>

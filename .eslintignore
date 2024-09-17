@@ -1,2 +1,2 @@
 dist/
-rollup.config.js
+rollup.config.mjs

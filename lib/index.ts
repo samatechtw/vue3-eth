@@ -1,3 +1,3 @@
-export { TxStatus } from './utils'
+export * from './util'
 
 export { useChain } from './use-chain'
