@@ -52,8 +52,8 @@ watch(walletConnected, async (connected) => {
   }
 })
 
-const connect = () => {
-  connectWallet('metamask')
+const connect = async () => {
+  await connectWallet('metamask')
 }
 
 const disconnect = () => {

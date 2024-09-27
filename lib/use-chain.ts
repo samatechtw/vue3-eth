@@ -54,34 +54,37 @@ const wrongNetwork = ref(false)
 const walletSource = ref()
 const connectError = ref()
 
-const connectCallback = ref()
-const disconnectCallback = ref()
-const chainChangedCallback = ref()
-const accountsChangedCallback = ref()
-const setupProviderCallback = ref()
+const connectCallback = ref<ConnectCallback>()
+const disconnectCallback = ref<DisconnectCallback>()
+const chainChangedCallback = ref<ChainChangedCallback>()
+const accountsChangedCallback = ref<AccountsChangedCallback>()
+const setupProviderCallback = ref<SetupProviderCallback>()
 
 // Callback helpers
-type ConnectCallback = (address: string, connected: boolean) => void
+type ConnectCallback = (
+  address: string | undefined,
+  connected: boolean,
+) => void | Promise<void>
 const onConnect = (callback: ConnectCallback) => {
   connectCallback.value = callback
 }
 
-type DisconnectCallback = () => void
+type DisconnectCallback = () => void | Promise<void>
 const onDisconnect = (callback: DisconnectCallback) => {
   disconnectCallback.value = callback
 }
 
-type ChainChangedCallback = (chainId: number) => void
+type ChainChangedCallback = (chainId: number) => void | Promise<void>
 const onChainChanged = (callback: ChainChangedCallback) => {
   chainChangedCallback.value = callback
 }
 
-type AccountsChangedCallback = (accounts: unknown[]) => void
+type AccountsChangedCallback = (accounts: unknown[]) => void | Promise<void>
 const onAccountsChanged = (callback: AccountsChangedCallback) => {
   accountsChangedCallback.value = callback
 }
 
-type SetupProviderCallback = (signer: Signer) => void
+type SetupProviderCallback = (signer: Signer) => void | Promise<void>
 const onSetupProvider = (callback: SetupProviderCallback) => {
   setupProviderCallback.value = callback
 }
@@ -129,17 +132,21 @@ export const useChain = (config?: IProviderConfig) => {
     loadingAccount.value = true
     try {
       setupWallet(walletName)
-      if (!walletSource.value?.isConnected()) {
+      const connected = await walletSource.value?.isConnected()
+      if (!connected) {
         return false
       }
-      const provider = await walletSource.value.getProvider()
-      if (await setupProvider(provider)) {
-        wallets.value = await walletSource.value.getAccounts(provider)
-        if (connectCallback.value) {
-          const address = await state.signer?.getAddress()
-          await connectCallback.value(address, true)
+      wallets.value = await walletSource.value.getAccounts()
+
+      if (wallets.value.length) {
+        const provider = await walletSource.value.getProvider()
+        if (await setupProvider(provider)) {
+          if (connectCallback.value) {
+            const address = await state.signer?.getAddress()
+            await connectCallback.value(address, true)
+          }
+          walletConnected.value = true
         }
-        walletConnected.value = true
       }
     } catch (e) {
       console.log('Fail to reconnect', e)
@@ -156,9 +163,10 @@ export const useChain = (config?: IProviderConfig) => {
       const provider = await walletSource.value.getProvider()
       await walletSource.value.connectWallet(provider)
       if (await setupProvider(provider)) {
+        wallets.value = await walletSource.value.getAccounts()
         if (connectCallback.value) {
           const address = await state.signer?.getAddress()
-          await connectCallback.value(address, false)
+          await connectCallback.value(address, true)
         }
         walletConnected.value = true
       }

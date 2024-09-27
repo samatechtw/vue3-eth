@@ -55,12 +55,12 @@ export const useMetamask = (_config?: IProviderConfig): IProvider => {
     }
   }
 
-  const getAccounts = async (provider: Provider): Promise<string[]> => {
+  const getAccounts = async (): Promise<string[]> => {
+    if (!window.ethereum || !window.ethereum.isMetaMask) {
+      return []
+    }
     try {
-      const accounts = await provider.request({
-        method: 'eth_requestAccounts',
-        params: [{ eth_accounts: {} }],
-      })
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' })
       return accounts || []
     } catch (e) {
       throw new Error(getError(e))

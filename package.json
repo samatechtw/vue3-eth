@@ -2,7 +2,6 @@
   "name": "@samatech/vue3-eth",
   "version": "0.7.0",
   "description": "Vue3 library for building Dapps in an ES module environment",
-  "main": "dist/vue3-eth.umd",
   "module": "dist/vue3-eth.mjs",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -11,10 +10,10 @@
     "lib"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc && rollup -c rollup.config.mjs",
+    "build": "vite build",
+    "test": "vitest",
     "dev": "concurrently --kill-others \"tsc --watch\" \"npm run example:dev\"",
     "example:dev": "npm -C example run dev",
-    "test": "jest",
     "lint": "eslint --ext .js,.ts .",
     "format": "prettier -w \"{**/*,*}.{ts,js,json}\"",
     "format:check": "prettier --check \"{**/*,*}.{ts,js,json}\""
@@ -41,17 +40,17 @@
     "ethers": "6.13.2"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^26.0.1",
-    "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
-    "@types/node": "22.5.5",
-    "@typescript-eslint/eslint-plugin": "^8.5.0",
-    "@typescript-eslint/parser": "^8.5.0",
+    "@types/node": "22.7.3",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "@vitejs/plugin-vue": "^5.1.4",
     "concurrently": "^7.1.0",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.30.0",
-    "rollup": "^4.21.3",
-    "rollup-plugin-polyfill-node": "^0.13.0",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8",
+    "vite-plugin-dts": "4.2.2",
+    "vite-plugin-node-polyfills": "^0.22.0"
   }
 }
