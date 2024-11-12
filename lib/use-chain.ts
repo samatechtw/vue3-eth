@@ -30,6 +30,7 @@ export interface IUseChain {
   getTx: (hash: string) => Promise<TransactionResponse | null>
   getTxReceipt: (hash: string) => Promise<TransactionReceipt | null>
   getSigner: () => Signer | undefined
+  getProvider: () => BrowserProvider | undefined
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getError: (e: unknown) => any
   getBalance: (address: string) => Promise<bigint | undefined>
@@ -218,6 +219,7 @@ export const useChain = (config?: IProviderConfig) => {
   }
 
   const getSigner = () => state.signer
+  const getProvider = () => state.provider
 
   const subscribeProvider = async (provider: BrowserProvider) => {
     if (!provider.on) {
@@ -262,6 +264,7 @@ export const useChain = (config?: IProviderConfig) => {
     getTx,
     getTxReceipt,
     getSigner,
+    getProvider,
     getError,
     getBalance,
   }
