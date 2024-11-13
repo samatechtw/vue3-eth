@@ -1,6 +1,6 @@
 {
   "name": "@samatech/vue3-eth",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Vue3 library for building Dapps in an ES module environment",
   "module": "dist/vue3-eth.mjs",
   "types": "dist/index.d.ts",
