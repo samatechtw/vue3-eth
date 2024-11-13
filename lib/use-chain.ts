@@ -21,6 +21,7 @@ export interface IUseChain {
   wrongNetwork: Ref<boolean>
   walletConnected: Ref<boolean>
   wallets: Ref<string[]>
+  chainId: Ref<string | undefined>
   // Methods
   connectWallet: (walletName: string) => Promise<void>
   reconnectWallet: (walletName: string) => Promise<void>
@@ -256,6 +257,7 @@ export const useChain = (config?: IProviderConfig) => {
     wrongNetwork,
     walletConnected,
     wallets,
+    chainId,
     // Methods
     connectWallet,
     reconnectWallet,
